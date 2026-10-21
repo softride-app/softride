@@ -68,7 +68,7 @@ curl.exe -X PUT "$V/vehicle/gear?gear=Drive"; curl.exe -X PUT "$V/vehicle/contro
   - `ReplaySignals` — 시연용 `assets/trip_demo.json`(시각별 속도·진행 방향, TBT 목록, 주의 구간). 브레이크·조향·방향지시등·기어·뒷좌석 착석은 Replay 중에도 실제 차량(Virtual Console) 값이 들어오고, 실제 속도가 5.4 km/h를 넘으면 기록 속도 대신 쓴다. Replay 중에는 화면에 "시뮬레이션 입력" 표시.
 - `engine/SwayMeter.kt` — 흔들림 지수 0–100. 좌우 가속(속도×진행 방향 변화율, 또는 속도²×tan(조향각)/축거 중 큰 값) + 앞뒤 가속(속도 변화) + 브레이크, 좌우에 가중. 0.1–0.5 Hz 대역을 강조. 1초 표본의 최근 5분 이동 평균.
 - `engine/CuePlanner.kt` — 멀미 예보 시점: 도달 시간 = 남은 거리 ÷ 현재 속도, 1.5초 전 알림, 알림 간격 최소 8초, 같은 방향 방향지시등이 켜지면 확인/앞당김(150 m 이내).
-- `engine/Speaker.kt` — 0.3초 효과음 + 3단어 이하 음성("곧 오른쪽", "곧 왼쪽", "곧 유턴", "곧 덜컹"). `AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK`, 다른 소리가 재생 중이면 건너뜀.
+- `engine/Speaker.kt` — 0.3초 효과음 + 3단어 이하 음성("곧 오른쪽", "곧 왼쪽", "곧 유턴", "곧 덜컹"). `AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK`, 포커스를 받지 못하면 건너뜀(깜빡이 소리는 막지 않음). 효과음 0.15초 지점에서 `speak()`를 불러 음성이 효과음 끝 0~0.1초 안에 이어진다. 부팅 뒤 첫 합성이 1~3초 늦어서, TTS 준비 직후와 주행 시작 때 빈 문장(" ")으로 미리 깨운다(소리 없음).
 - `engine/AirCare.kt` — 공조 케어(요청 모델): 허용 범위(바깥 공기, −1 ℃, 바람 +1단) 안에서, `checkHvac*Capabilities`가 돌려준 영역에만, 음성 안내 후 실행, 주행당 1회, 운전자가 먼저 바꾸면 하지 않음.
 - `engine/Engine.kt` — 10 Hz 루프, 운전자 화면 수치는 5초 단위 계단 갱신, 주행 기록·리포트, 휴게소 제안(누적 흔들림이 높고 휴게소/졸음쉼터 TBT가 3 km 안에 있으면 1회).
 - `engine/Listener.kt` — 휴식 제안 대답. Pleos SpeechToText(ON_DEVICE)를 제안 음성이 끝난 직후에만 `request()`, 6초 안에 "응/네/예/그래/좋아"면 음성으로 확인하고 리포트 "휴식"에 센다. 대답이 없거나 STT를 못 쓰면 아무것도 하지 않는다(주행 중 버튼 없음).

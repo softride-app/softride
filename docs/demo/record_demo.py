@@ -38,7 +38,45 @@ def shot(name):
 def at(sec):
     while time.time() - T0 < sec: time.sleep(0.05)
 
+# Replay speed profile (m/s) so the cluster shows the same speed as SoftRide during Replay.
+import json
+TRIP = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "app", "src", "main",
+                                   "assets", "trip_demo.json"), encoding="utf-8"))["samples"]
+def replay_kmh(t):
+    if t <= TRIP[0]["t"]: return TRIP[0]["speed"] * 3.6
+    for a, b in zip(TRIP, TRIP[1:]):
+        if b["t"] >= t:
+            f = (t - a["t"]) / (b["t"] - a["t"])
+            return (a["speed"] + (b["speed"] - a["speed"]) * f) * 3.6
+    return 0.0
+END = TRIP[-1]["t"]
+ctl = {"brake": 0, "steering": 0}
+ctl_lock = threading.Lock()
+driving = False
+last_logged = [None]
+
+def push(log_it=False):
+    """Send replay speed (looked 0.5 s ahead, the step lasts 0.5 s) with the current brake/steering in one call."""
+    kmh = round(replay_kmh(time.time() - T0 + 0.25))  # the console accepts whole km/h only
+    q = f"/vehicle/controls?speed={kmh}&brake={ctl['brake']}&steering={ctl['steering']}"
+    if log_it or last_logged[0] is None or abs(kmh - last_logged[0]) >= 5:
+        stamp(f"VC PUT {q}"); last_logged[0] = kmh
+    urllib.request.urlopen(urllib.request.Request(V + q, method="PUT"), timeout=5).read()
+
+def speed_loop():
+    while driving:
+        try:
+            with ctl_lock: push()
+        except Exception as e:
+            stamp(f"speed push failed: {e}")
+        time.sleep(0.5)
+
+def control(**kw):
+    with ctl_lock:
+        ctl.update(kw); push(log_it=True)
+
 # heartbeat for the Virtual Console
+subprocess.run(ADB + ["forward", "tcp:8088", "tcp:8088"], capture_output=True)
 stop = False
 def beat():
     while not stop:
@@ -78,24 +116,34 @@ sr = subprocess.Popen(ADB + ["shell", "screenrecord", "--time-limit", "180", "--
 sr_t = time.time()
 stamp(f"recorders started: gdigrab {vid_t:.3f}, screenrecord {sr_t:.3f}")
 
-time.sleep(3); shot("5x_01_idle_seat_empty.png")
-time.sleep(2); vc("/vehicle/seat?area=rear_right&kind=occupied&value=true")
-time.sleep(3); shot("5x_02_seat_occupied.png")
+time.sleep(5)
+vc("/vehicle/seat?area=rear_right&kind=occupied&value=true")
+time.sleep(4)
 time.sleep(1)
 T0 = time.time()
 adb("shell", "am", "start", "-n", "ai.softride.app/.MainActivity", "--ez", "replay", "true")
-at(21); vc("/vehicle/turn-signal?mode=BlinkRight")
-at(25.5); shot("5x_03_right_cue_signal.png")
-at(28); vc("/vehicle/turn-signal?mode=Off")
+vc("/vehicle/gear?gear=Drive")
+driving = True
+threading.Thread(target=speed_loop, daemon=True).start()
+# short blink: the signal confirms the right-turn cue; a short blink keeps the side-camera view up only briefly
+at(19.5); vc("/vehicle/turn-signal?mode=BlinkRight")
+at(21.0); shot("6x_01_driving_cluster_D.png")
+at(22.0); vc("/vehicle/turn-signal?mode=Off")
+at(25.5); shot("6x_02_after_right_cue.png")
 at(74)
 for st in (20, -20, 25, -22, 20, 0):
-    vc(f"/vehicle/controls?steering={st}&brake=0"); time.sleep(2)
-vc("/vehicle/controls?brake=40"); time.sleep(2); vc("/vehicle/controls?brake=0&steering=0")
-at(84); shot("5x_04_air_care_climate_bar.png")
-at(101); shot("5x_05_rest_prompt_listening.png")
-at(156); shot("5x_06_trip_report_3_cues.png")
+    control(steering=st, brake=0); time.sleep(2)
+control(brake=40); time.sleep(2); control(brake=0, steering=0)
+at(89); shot("6x_03_air_care_climate_bar.png")
+at(101); shot("6x_04_rest_prompt_listening.png")
+at(END - 0.5)
+driving = False
+time.sleep(0.6)
+vc("/vehicle/controls?speed=0&brake=0&steering=0")
+vc("/vehicle/gear?gear=Park")
+at(156); shot("6x_05_trip_report_parked.png")
 at(160); adb("shell", "cmd", "uimode", "night", "yes")
-at(165); shot("5x_07_trip_report_night.png")
+at(165); shot("6x_06_trip_report_night.png")
 at(166); adb("shell", "cmd", "uimode", "night", "no")
 stamp("end of scripted run")
 
@@ -106,6 +154,11 @@ sf.write(os.path.join(OUT, "raw_audio_loopback.wav"), d, 48000, subtype="FLOAT")
 peak = float(np.abs(d).max())
 stamp(f"audio saved, peak {peak:.4f}; audio started {audio['t']:.3f} (gdigrab {vid_t - audio['t']:+.3f}s, screenrecord {sr_t - audio['t']:+.3f}s after audio)")
 subprocess.run(ADB + ["pull", "/sdcard/raw_demo_native.mp4", os.path.join(OUT, "raw_video_native.mp4")], capture_output=True)
+# edit source: native 2560x1440 video + loopback audio (boosted, aligned to the screenrecord start)
+subprocess.run([FF, "-y", "-v", "error", "-i", os.path.join(OUT, "raw_video_native.mp4"),
+                "-ss", f"{max(0.0, sr_t - audio['t']):.3f}", "-i", os.path.join(OUT, "raw_audio_loopback.wav"),
+                "-map", "0:v", "-map", "1:a", "-filter:a", "volume=39dB,alimiter=limit=0.9",
+                "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-shortest", os.path.join(OUT, "raw_demo.mp4")])
 cues = subprocess.run(ADB + ["logcat", "-d", "-s", "SoftRide"], capture_output=True, text=True, encoding="utf-8").stdout
 with open(os.path.join(OUT, "cue_times.log"), "w", encoding="utf-8") as f:
     f.write(f"# replay start (T=0) at {datetime.datetime.fromtimestamp(T0):%H:%M:%S.%f}; audio start {datetime.datetime.fromtimestamp(audio['t']):%H:%M:%S.%f}\n")

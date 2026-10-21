@@ -168,6 +168,7 @@ class Engine(private val context: Context) {
         cues = 0; rests = 0; restAsked = false; shownSway = 0; lastStepMs = now; report = null
         if (!s.simulated) route = s.destination?.let { "$it 가는 길" } ?: "이번 주행"
         air.newTrip(settings.value.air)
+        speaker.warmUp()
         Log.i(TAG, "trip start (simulated=${s.simulated}, speed via ${live.speedSource})")
     }
 

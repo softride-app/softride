@@ -11,6 +11,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class EngineLogicTest {
+
     @Test fun turnTypeMapsToTheSideTheCarTurns() {
         val expect = mapOf(
             TurnType.TURN_RIGHT to EventKind.RIGHT, TurnType.TURN_LEFT to EventKind.LEFT,

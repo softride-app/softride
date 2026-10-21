@@ -33,7 +33,7 @@ class Speaker(context: Context) {
         .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
         .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build()
     private val focus = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
-        .setAudioAttributes(attrs).setOnAudioFocusChangeListener { }.build()
+        .setAudioAttributes(attrs).setOnAudioFocusChangeListener { Log.i(TAG, "focus change $it +${since()}ms") }.build()
 
     private var pleos: TextToSpeech? = null
     @Volatile private var pleosReady = false
@@ -59,12 +59,13 @@ class Speaker(context: Context) {
                         runCatching { tts.setLocale(Locale.KOREA); tts.setAudioAttributes(attrs) }
                         pleosReady = true; engine = "pleos"
                         Log.i(TAG, "Pleos TTS ready")
+                        warmUp()
                     }
                     override fun onFailure(type: ErrorType) { Log.w(TAG, "Pleos TTS init failed: $type"); startPlatform() }
                 })
                 tts.addEventListener(object : EventListener {
-                    override fun onStart() {}
-                    override fun onReady() {}
+                    override fun onStart() { Log.i(TAG, "tts onStart +${since()}ms") }
+                    override fun onReady() { Log.i(TAG, "tts onReady +${since()}ms") }
                     override fun onDone() { release(); finished() }
                     override fun onError(type: ErrorType) { Log.w(TAG, "Pleos TTS error: $type"); release() }
                     override fun onStop() { release() }
@@ -99,16 +100,37 @@ class Speaker(context: Context) {
     fun cue(phrase: String, withEarcon: Boolean = true, onDone: (() -> Unit)? = null): Boolean {
         // Skip only when another stream holds focus. (isMusicActive was dropped: on the AVD the turn-signal
         // ticker made it true and silenced exactly the cue the signal is meant to confirm.)
-        if (am.requestAudioFocus(focus) != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) { Log.i(TAG, "cue skipped: focus denied"); return false }
+        t0 = android.os.SystemClock.elapsedRealtime()
+        val fr = am.requestAudioFocus(focus)
+        Log.i(TAG, "cue focus result=$fr +${since()}ms")
+        if (fr != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) { Log.i(TAG, "cue skipped: focus denied"); return false }
         pendingDone = onDone
         if (withEarcon) playEarcon()
-        main.postDelayed({ say(phrase) }, if (withEarcon) 320 else 0)
+        // Warm on-device TTS needs 0.15–0.35 s from speak() to sound on the AVD, so speak 150 ms into the 0.3 s
+        // earcon: the phrase lands 0–0.2 s after the earcon ends and never overlaps it.
+        main.postDelayed({ say(phrase) }, if (withEarcon) 150 else 0)
         main.postDelayed({ release() }, 6_000)                // safety net if no done-callback arrives
         Log.i(TAG, "cue: $phrase via $engine")
         return true
     }
 
+    /**
+     * Loads the on-device voice before the first cue. On the AVD the first synthesis after boot started
+     * 1.3–3 s late (earcon heard, phrase seconds later); later cues start ~0.2 s after the earcon.
+     * A blank utterance makes the engine load without producing sound.
+     */
+    fun warmUp() {
+        if (!pleosReady) return
+        t0 = android.os.SystemClock.elapsedRealtime()
+        Log.i(TAG, "tts warm-up")
+        runCatching { pleos?.speak(" ", true) }.onFailure { Log.w(TAG, "warm-up: ${it.message}") }
+    }
+
+    @Volatile private var t0 = 0L
+    private fun since() = android.os.SystemClock.elapsedRealtime() - t0
+
     private fun say(text: String) {
+        Log.i(TAG, "tts speak() +${since()}ms")
         if (pleosReady) runCatching { pleos?.speak(text, true); return }.onFailure { Log.w(TAG, "speak: ${it.message}") }
         platform?.speak(text, android.speech.tts.TextToSpeech.QUEUE_FLUSH, null, "cue")
     }
@@ -120,6 +142,7 @@ class Speaker(context: Context) {
             .setBufferSizeInBytes(earcon.size * 2).setTransferMode(AudioTrack.MODE_STATIC).build()
         track.write(earcon, 0, earcon.size)
         track.play()
+        Log.i(TAG, "earcon play +${since()}ms")
         main.postDelayed({ track.release() }, 600)
     }
 
