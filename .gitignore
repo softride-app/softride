@@ -1,0 +1,11 @@
+.gradle/
+build/
+app/build/
+local.properties
+.idea/
+*.iml
+keystore/
+apk/*.apk
+docs/demo/raw_video_native.mp4
+docs/demo/raw_video_gdigrab.mp4
+docs/demo/raw_audio_loopback.wav

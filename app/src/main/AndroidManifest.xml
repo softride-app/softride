@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-feature android:name="android.hardware.type.automotive" android:required="true" />
+
+    <!-- Vehicle SDK (read): brake, steering angle, gear -->
+    <uses-permission android:name="pleos.car.permission.CAR_DRIVE" />
+    <!-- Vehicle SDK (read): turn signal -->
+    <uses-permission android:name="pleos.car.permission.CAR_LIGHTS" />
+    <!-- Vehicle SDK (read): ROW_2 seat occupancy -->
+    <uses-permission android:name="pleos.car.permission.CAR_SEATS" />
+    <!-- Vehicle SDK HVAC: read + air-care request -->
+    <uses-permission android:name="pleos.car.permission.CAR_CLIMATE" />
+    <uses-permission android:name="pleos.car.permission.CONTROL_CAR_CLIMATE" />
+    <!-- Speed: AAOS CarPropertyManager PERF_VEHICLE_SPEED -->
+    <uses-permission android:name="pleos.car.permission.CAR_SPEED" />
+    <uses-permission android:name="android.car.permission.CAR_SPEED" />
+    <!-- NaviHelper: TBT / caution points / destination -->
+    <uses-permission android:name="pleos.car.permission.NAVI_ROUTE" />
+    <!-- NaviHelper requestRoute (stage-2 probe of the real TBT path) -->
+    <uses-permission android:name="pleos.car.permission.NAVI_ROUTE_SEARCH" />
+    <!-- TextToSpeech / SpeechToText (ON_DEVICE) -->
+    <uses-permission android:name="pleos.car.permission.TTS_SERVICE" />
+    <uses-permission android:name="pleos.car.permission.STT_SERVICE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- FusedLocation: speed fallback from position change, heading -->
+    <uses-permission android:name="pleos.car.permission.FUSED_LOCATION" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
+    <application
+        android:name=".SoftRideApp"
+        android:allowBackup="false"
+        android:icon="@drawable/ic_launcher"
+        android:label="소프트라이드"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="landscape"
+            android:configChanges="uiMode|screenSize|smallestScreenSize|screenLayout|orientation|density">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- Driving screen is static and glanceable: declared distraction-optimized -->
+            <meta-data android:name="distractionOptimized" android:value="true" />
+        </activity>
+
+        <service
+            android:name=".CueService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="In-car motion-sickness cues (earcon + TTS) that must keep running while the screen is covered by the driving restriction." />
+        </service>
+    </application>
+</manifest>

@@ -1,0 +1,36 @@
+19:45:31.551  T=   pre    VC PUT /vehicle/gear?gear=Park
+19:45:31.554  T=   pre    VC PUT /vehicle/seat?area=rear_left&kind=occupied&value=false
+19:45:31.558  T=   pre    VC PUT /vehicle/seat?area=rear_right&kind=occupied&value=false
+19:45:31.569  T=   pre    VC PUT /vehicle/controls?speed=0&brake=0&steering=0
+19:45:31.577  T=   pre    VC PUT /vehicle/turn-signal?mode=Off
+19:45:31.580  T=   pre    VC PUT /vehicle/hvac?power=1
+19:45:31.583  T=   pre    VC PUT /vehicle/hvac?recirc=1
+19:45:31.596  T=   pre    VC PUT /vehicle/hvac?driver_temp=22
+19:45:31.608  T=   pre    adb shell cmd uimode night no
+19:45:31.648  T=   pre    adb shell am force-stop ai.softride.app
+19:45:31.774  T=   pre    adb logcat -c
+19:45:31.810  T=   pre    adb shell am start -W -n ai.softride.app/.MainActivity
+19:45:35.297  T=   pre    recorders started: gdigrab 1792579535.293, screenrecord 1792579535.298
+19:45:38.709  T=   pre    screenshot 5x_01_idle_seat_empty.png
+19:45:40.710  T=   pre    VC PUT /vehicle/seat?area=rear_right&kind=occupied&value=true
+19:45:44.083  T=   pre    screenshot 5x_02_seat_occupied.png
+19:45:45.083  T=   0.00s  adb shell am start -n ai.softride.app/.MainActivity --ez replay true
+19:46:06.099  T=  21.02s  VC PUT /vehicle/turn-signal?mode=BlinkRight
+19:46:11.147  T=  26.06s  screenshot 5x_03_right_cue_signal.png
+19:46:13.118  T=  28.03s  VC PUT /vehicle/turn-signal?mode=Off
+19:46:59.087  T=  74.00s  VC PUT /vehicle/controls?steering=20&brake=0
+19:47:01.092  T=  76.01s  VC PUT /vehicle/controls?steering=-20&brake=0
+19:47:03.105  T=  78.02s  VC PUT /vehicle/controls?steering=25&brake=0
+19:47:05.117  T=  80.03s  VC PUT /vehicle/controls?steering=-22&brake=0
+19:47:07.122  T=  82.04s  VC PUT /vehicle/controls?steering=20&brake=0
+19:47:09.136  T=  84.05s  VC PUT /vehicle/controls?steering=0&brake=0
+19:47:11.148  T=  86.07s  VC PUT /vehicle/controls?brake=40
+19:47:13.152  T=  88.07s  VC PUT /vehicle/controls?brake=0&steering=0
+19:47:13.522  T=  88.44s  screenshot 5x_04_air_care_climate_bar.png
+19:47:26.449  T= 101.37s  screenshot 5x_05_rest_prompt_listening.png
+19:48:21.491  T= 156.41s  screenshot 5x_06_trip_report_3_cues.png
+19:48:25.126  T= 160.04s  adb shell cmd uimode night yes
+19:48:30.521  T= 165.44s  screenshot 5x_07_trip_report_night.png
+19:48:31.128  T= 166.04s  adb shell cmd uimode night no
+19:48:31.202  T= 166.12s  end of scripted run
+19:48:37.542  T= 172.46s  audio saved, peak 0.0056; audio started 1792579535.301 (gdigrab -0.008s, screenrecord -0.003s after audio)
