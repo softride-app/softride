@@ -38,6 +38,9 @@ data class UiState(
     val air: AirState = AirState.WAITING,
     val airApplied: List<String> = emptyList(),
     val airArea: String = "",
+    val airLine: String = "",
+    val childName: String? = null,
+    val childSeat: String = "",
     val child: String? = null,
     val armed: Boolean = false,
     val simulated: Boolean = false,
@@ -54,10 +57,18 @@ class Engine(private val context: Context) {
     private val signals: VehicleSignals get() = replay ?: real
 
     val speaker = Speaker(context)
-    private val listener = Listener(context) { rests++; speaker.cue("좋아요, 휴게소에서 쉬어 가요", withEarcon = false) }
     private val sway = SwayMeter()
     private val planner = CuePlanner()
-    val air = AirCare({ if (live.ready) live.vehicle else null }, { speaker.cue(it) })
+    private val gaze = WindowGaze()
+    /** Every non-turn prompt goes through here so it counts for the 8-s gap between spoken prompts. */
+    private fun prompt(text: String, withEarcon: Boolean = true, onDone: (() -> Unit)? = null): Boolean =
+        speaker.cue(text, withEarcon, onDone).also { if (it) planner.markSpoken(System.currentTimeMillis()) }
+    private val listener = Listener(context) { rests++; prompt("좋아요, 휴게소에서 쉬어 가요", withEarcon = false) }
+    val air = AirCare(
+        { if (live.ready) live.vehicle else null },
+        { context.checkSelfPermission(CONTROL_CLIMATE) == android.content.pm.PackageManager.PERMISSION_GRANTED },
+        { prompt(it) },
+    )
 
     private val _ui = MutableStateFlow(UiState())
     val ui: StateFlow<UiState> = _ui
@@ -72,6 +83,8 @@ class Engine(private val context: Context) {
     private var shownSway = 0; private var lastStepMs = 0L; private var lastUiMs = 0L
     private var report: TripReport? = null
     private var route = "주행"
+
+    private companion object { const val CONTROL_CLIMATE = "pleos.car.permission.CONTROL_CAR_CLIMATE" }
 
     private val childLabel: String? get() = settings.value.child?.let { "${it.name}(${it.age}세)" }
 
@@ -128,17 +141,27 @@ class Engine(private val context: Context) {
                 Log.i(TAG, "cue for ${e.id} ${e.kind} '${e.label}' at ${"%.0f".format(e.distanceM)}m, ${"%.1f".format(s.speedMps * 3.6f)}km/h")
                 if (speaker.cue(e.kind.phrase!!)) { planner.markCued(e, now, s.turnSignal); cues++ } else planner.markSkipped(e)
             }
-            if (air.state == AirState.WAITING && sway.recent(10) >= sens.airAt) air.trigger()
+            // Non-turn prompts: never within 8 s of another prompt or of a coming turn cue, never over the mic.
+            fun quiet() = planner.quiet(System.currentTimeMillis(), s.speedMps, s.events) &&
+                listener.state != RestState.LISTENING && air.state != AirState.ANNOUNCED   // air care speaks after its async survey
+            val gazeDue = gaze.due(now, s.headingDeg, sway.recent(10), s.events)
+            if (gazeDue && quiet() && set.cuesOn && armed(s)) {
+                Log.i(TAG, "window gaze: straight 15 s after sway ≥ 50, no turn within 400 m")
+                if (prompt(WindowGaze.PHRASE)) gaze.said(now)
+            } else if (quiet() && air.state == AirState.WAITING && sway.recent(10) >= sens.airAt) air.trigger()
             // Rest: only when the NEXT TBT is a service area / rest area and sway has piled up; asked once, answer by voice.
             val rest = s.events.firstOrNull { it.tbt && it.kind == EventKind.REST && it.distanceM < 3_000 }
-            if (set.restOn && !restAsked && rest != null && sway.index >= sens.restAt) {
-                val ahead = if (rest.distanceM < 1_000) "${(rest.distanceM / 100).roundToInt() * 100}미터"
-                            else "${"%.1f".format(rest.distanceM / 1000)}킬로미터"
-                if (speaker.cue("$ahead 앞 휴게소에서 쉬었다 갈까요?", withEarcon = false) { listener.listen() }) {
+            if (quiet() && set.restOn && !restAsked && rest != null && sway.index >= sens.restAt) {
+                val m100 = (rest.distanceM / 100).roundToInt() * 100
+                val ahead = if (m100 < 1_000) "${m100}미터" else "${"%.1f".format(rest.distanceM / 1000).removeSuffix(".0")}킬로미터"
+                if (prompt("$ahead 앞 휴게소에서 쉬었다 갈까요?", withEarcon = false) { listener.listen() }) {
                     restAsked = true; listener.asked()   // 휴식 counts only a "yes"
                 }
             }
-            if (now - lastStepMs >= 5_000) { shownSway = sway.index; lastStepMs = now }   // stepped, at most every 5 s
+            if (now - lastStepMs >= 5_000) {   // stepped, at most every 5 s
+                shownSway = sway.index; lastStepMs = now
+                Log.i(TAG, "sway index $shownSway, 10 s ${"%.0f".format(sway.recent(10))}")
+            }
         }
 
         if (now - lastUiMs >= 1_000) { lastUiMs = now; publish(s) }
@@ -156,8 +179,9 @@ class Engine(private val context: Context) {
             cautions = s.events.filter { !it.tbt && it.kind == EventKind.BUMP && it.distanceM >= 10 }.sortedBy { it.distanceM }.take(2),
             destination = s.destination,
             remainMin = s.remainSec?.let { (it / 60.0).roundToInt() },
-            air = air.state, airApplied = air.applied, airArea = air.areaLabel,
-            child = childLabel, armed = armed(s),
+            air = air.state, airApplied = air.applied, airArea = air.areaLabel, airLine = air.line,
+            child = childLabel, childName = settings.value.child?.name, childSeat = settings.value.child?.seat?.label ?: "",
+            armed = armed(s),
             simulated = s.simulated, rest = listener.state, report = report,
         )
     }
@@ -168,6 +192,8 @@ class Engine(private val context: Context) {
         cues = 0; rests = 0; restAsked = false; shownSway = 0; lastStepMs = now; report = null
         if (!s.simulated) route = s.destination?.let { "$it 가는 길" } ?: "이번 주행"
         air.newTrip(settings.value.air)
+        gaze.newTrip()
+        speaker.voice = settings.value.child?.voice ?: Voice.WARM
         speaker.warmUp()
         Log.i(TAG, "trip start (simulated=${s.simulated}, speed via ${live.speedSource})")
     }
@@ -184,7 +210,8 @@ class Engine(private val context: Context) {
         report = TripReport(
             route = route, durationS = n, samples = tripSamples.toList(), mostFromS = best, mostToS = best + w,
             avg = avg, score = (100 - avg).coerceIn(0, 100), cues = cues,
-            airCares = if (air.state == AirState.DONE) 1 else 0, rests = rests, child = childLabel,
+            airCares = if (air.applied.isNotEmpty()) 1 else 0,   // only after a setHvac* call succeeded
+            rests = rests, child = childLabel,
         )
         Log.i(TAG, "trip end: $n s, avg $avg, cues $cues")
     }

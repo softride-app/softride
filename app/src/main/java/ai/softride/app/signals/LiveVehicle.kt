@@ -52,8 +52,10 @@ class LiveVehicle(context: Context) {
      * Vehicle 2.3.2 turns SEAT_OCCUPANCY into `value == 1` (PropertyCallback / SeatImpl), but the AAOS values are
      * 0 UNKNOWN, 1 VACANT, 2 OCCUPIED: on the AVD the SDK says true for an empty seat and false for an occupied one
      * (Virtual Console rear_right=true → value 2 → SDK false). So "false" from the SDK means occupied here.
+     * Version guard: checked on Vehicle 2.3.2 only. If a later SDK maps OCCUPIED to true, flip [SDK_OCCUPIED];
+     * the raw SDK value is logged as "seat ROW_2_* sdk=…" to check this on a new SDK or a real car.
      */
-    private fun occupied(sdk: Boolean?) = sdk == false
+    private fun occupied(sdk: Boolean?) = sdk == SDK_OCCUPIED
     val rearLeft: Boolean get() = synchronized(rearSeats) { rearSeats[SeatValue.ROW_2_LEFT] == true }
     val rearRight: Boolean get() = synchronized(rearSeats) { rearSeats[SeatValue.ROW_2_RIGHT] == true }
 
@@ -148,6 +150,8 @@ class LiveVehicle(context: Context) {
 
     companion object {
         const val TAG = "SoftRide"
+        /** SDK seat-occupancy value that means "someone sits here" (Vehicle 2.3.2 reports it inverted; see [occupied]). */
+        const val SDK_OCCUPIED = false
         private fun TurnSignalValue?.toTurn() = when (this) { TurnSignalValue.LEFT -> Turn.LEFT; TurnSignalValue.RIGHT -> Turn.RIGHT; else -> Turn.OFF }
         private fun VehicleGear?.toPos() = when (this) {
             VehicleGear.GEAR_PARK -> GearPos.PARK; VehicleGear.GEAR_REVERSE -> GearPos.REVERSE

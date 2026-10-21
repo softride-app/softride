@@ -10,7 +10,16 @@ enum class Seat(val label: String) { LEFT("뒷좌석 왼쪽"), RIGHT("뒷좌석 
 enum class Sensitivity(val label: String, val airAt: Float, val restAt: Int) {
     LOW("낮음", 55f, 45), MID("보통", 45f, 35), HIGH("높음", 35f, 25)
 }
-enum class Voice(val label: String) { WARM("다정한 목소리"), CLEAR("또렷한 목소리"), CALM("차분한 목소리") }
+/**
+ * Alert voice. Pleos TextToSpeech 3.3.1 has no pitch or rate setting; it picks the voice with
+ * setSpeakerType(name) (speaker names as in the Pleos speech service, e.g. its default "seoyoon").
+ * [pitch]/[rate] apply only when the Android TextToSpeech fallback speaks.
+ */
+enum class Voice(val label: String, val speaker: String, val pitch: Float, val rate: Float) {
+    WARM("다정한 목소리", "seoyoon", 1.0f, 1.0f),
+    CLEAR("또렷한 목소리", "haeun", 1.15f, 1.15f),
+    CALM("차분한 목소리", "eunwoo", 0.85f, 0.85f),
+}
 
 data class Profile(
     val name: String, val age: Int, val seat: Seat,

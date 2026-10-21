@@ -44,8 +44,38 @@ class EngineLogicTest {
         val p = CuePlanner()
         p.markCued(turn(10.0, "a"), 0, Turn.OFF)
         assertNull(p.plan(5_000, 10f, listOf(turn(10.0, "b")), Turn.OFF))   // within 8 s: skipped
-        assertNotNull(p.plan(9_000, 10f, listOf(turn(120.0, "c")), Turn.RIGHT)) // signal advances a near turn
-        assertNull(p.plan(9_000, 10f, listOf(turn(120.0, "d")), Turn.LEFT))
+        assertNotNull(p.plan(9_000, 10f, listOf(turn(35.0, "c")), Turn.RIGHT))  // 3.5 s away: signal advances it
+        assertNull(p.plan(9_000, 10f, listOf(turn(35.0, "d")), Turn.LEFT))      // other side: no
+        assertNull(p.plan(9_000, 10f, listOf(turn(60.0, "e")), Turn.RIGHT))     // 6 s away: normal 1.5 s timing
+        assertNull(p.plan(9_000, 30f, listOf(turn(140.0, "f")), Turn.RIGHT))    // < 150 m but 4.7 s away
+    }
+
+    @Test fun otherPromptsKeepEightSecondsFromTurnCues() {
+        val p = CuePlanner()
+        assertTrue(p.quiet(0, 10f, listOf(turn(200.0))))           // turn cue due in 18.5 s
+        assertTrue(!p.quiet(0, 10f, listOf(turn(80.0))))           // turn cue due in 6.5 s: wait
+        p.markSpoken(20_000)
+        assertTrue(!p.quiet(25_000, 10f, emptyList()))             // 5 s after another prompt
+        assertNull(p.plan(25_000, 10f, listOf(turn(14.0, "g")), Turn.OFF))  // a turn cue keeps the gap too
+        assertTrue(p.quiet(28_100, 10f, emptyList()))
+    }
+
+    @Test fun windowGazeOnlyOnAStraightAfterARoughStretchOncePerTenMinutes() {
+        val g = WindowGaze()
+        val far = listOf(RouteEvent("t", EventKind.RIGHT, 900.0, "우회전", tbt = true))
+        val near = listOf(RouteEvent("t", EventKind.RIGHT, 300.0, "우회전", tbt = true))
+        // winding and rough for 20 s: never due
+        for (i in 0..200) assertTrue(!g.due(i * 100L, if (i % 40 < 20) 20f else 340f, 60f, far))
+        // straight from 20.1 s, calm: due once 15 s have passed
+        assertTrue(!g.due(20_100, 0f, 10f, far))
+        assertTrue(!g.due(34_000, 0f, 10f, far))
+        assertTrue(!g.due(36_000, 0f, 10f, near))              // a turn 300 m ahead: wait
+        assertTrue(g.due(36_000, 2f, 10f, far))
+        g.said(36_000)
+        assertTrue(!g.due(37_000, 1f, 10f, far))               // said: not again within 10 min
+        // straight but never rough: not due
+        val calm = WindowGaze()
+        for (i in 0..300) assertTrue(!calm.due(i * 100L, 0f, 20f, far))
     }
 
     @Test fun swayRisesWithSteeringAndStaysLowWhenStraight() {

@@ -1,27 +1,29 @@
-# replay start (T=0) at 20:32:18.264223; audio start 20:32:08.258970
-10-21 20:32:04.896 22457 22457 I SoftRide: stt ready
-10-21 20:32:05.015 22457 22478 I SoftRide: seat ROW_2_RIGHT sdk=false
-10-21 20:32:05.016 22457 22546 I SoftRide: seat ROW_2_LEFT sdk=true
-10-21 20:32:05.025 22457 22492 I SoftRide: seat ROW_2_LEFT sdk=true
-10-21 20:32:05.028 22457 22628 I SoftRide: seat ROW_2_LEFT sdk current=true
-10-21 20:32:05.028 22457 22492 I SoftRide: seat ROW_2_RIGHT sdk=true
-10-21 20:32:05.034 22457 22492 I SoftRide: seat ROW_2_RIGHT sdk=true
-10-21 20:32:05.035 22457 22492 I SoftRide: seat ROW_2_RIGHT sdk current=true
-10-21 20:32:12.652 22457 22492 I SoftRide: seat ROW_2_RIGHT sdk=false
-10-21 20:32:17.864 22457 22594 I SoftRide: trip start (simulated=true, speed via car)
-10-21 20:32:37.257 22457 22594 I SoftRide: cue for tbt-0 RIGHT '우회전' at 52m, 43.0km/h
-10-21 20:32:37.268 22457 22594 I SoftRide: cue focus result=1 +11ms
-10-21 20:32:37.361 22457 22594 I SoftRide: cue: 곧 오른쪽 via pleos
-10-21 20:33:01.510 22457 22594 I SoftRide: cue for caution-0 BUMP '과속방지턱' at 10m, 26.0km/h
-10-21 20:33:01.512 22457 22594 I SoftRide: cue focus result=1 +2ms
-10-21 20:33:01.528 22457 22594 I SoftRide: cue: 곧 덜컹 via pleos
-10-21 20:33:20.509 22457 22594 I SoftRide: cue for tbt-1 LEFT '좌회전' at 10m, 24.0km/h
-10-21 20:33:20.511 22457 22594 I SoftRide: cue focus result=1 +2ms
-10-21 20:33:20.529 22457 22594 I SoftRide: cue: 곧 왼쪽 via pleos
-10-21 20:33:34.791 22457 22477 I SoftRide: cue focus result=1 +2ms
-10-21 20:33:34.812 22457 22477 I SoftRide: cue: 바깥 공기로 바꿀게요 via pleos
-10-21 20:33:37.017 22457 22457 I SoftRide: air care: rec=[ROW_1_LEFT, ROW_1_RIGHT, ROW_2_LEFT, ROW_2_CENTER, ROW_2_RIGHT] temp=[ROW_1_LEFT] 22.0 fan=[ROW_1_LEFT, ROW_1_RIGHT] 3
-10-21 20:33:56.784 22457 22594 I SoftRide: cue focus result=1 +2ms
-10-21 20:33:56.785 22457 22594 I SoftRide: cue: 400미터 앞 휴게소에서 쉬었다 갈까요? via pleos
-10-21 20:34:05.385 22457 22457 I SoftRide: stt: no answer
-10-21 20:34:49.867 22457 22594 I SoftRide: trip end: 150 s, avg 33, cues 3
+# replay start (T=0) at 21:18:52.744889; audio start 21:18:42.369803
+10-21 21:18:38.533 19415 19415 I SoftRide: stt ready
+10-21 21:18:38.644 19415 19432 I SoftRide: seat ROW_2_LEFT sdk current=true
+10-21 21:18:38.647 19415 19432 I SoftRide: seat ROW_2_RIGHT sdk=false
+10-21 21:18:38.648 19415 19432 I SoftRide: seat ROW_2_LEFT sdk=true
+10-21 21:18:38.649 19415 19443 I SoftRide: seat ROW_2_RIGHT sdk current=true
+10-21 21:18:38.656 19415 19443 I SoftRide: seat ROW_2_RIGHT sdk=true
+10-21 21:18:38.660 19415 19443 I SoftRide: seat ROW_2_LEFT sdk=true
+10-21 21:18:38.661 19415 19443 I SoftRide: seat ROW_2_RIGHT sdk=true
+10-21 21:18:46.653 19415 19561 I SoftRide: seat ROW_2_RIGHT sdk=false
+10-21 21:18:51.866 19415 19548 I SoftRide: trip start (simulated=true, speed via car)
+10-21 21:19:11.674 19415 19548 I SoftRide: cue for tbt-0 RIGHT '우회전' at 47m, 43.0km/h
+10-21 21:19:11.678 19415 19548 I SoftRide: cue focus result=1 +4ms
+10-21 21:19:11.694 19415 19548 I SoftRide: cue: 곧 오른쪽 via pleos
+10-21 21:19:35.248 19415 19548 I SoftRide: cue for caution-0 BUMP '과속방지턱' at 12m, 30.0km/h
+10-21 21:19:35.250 19415 19548 I SoftRide: cue focus result=1 +2ms
+10-21 21:19:35.278 19415 19548 I SoftRide: cue: 곧 덜컹 via pleos
+10-21 21:19:54.779 19415 19548 I SoftRide: cue for tbt-1 LEFT '좌회전' at 9m, 22.0km/h
+10-21 21:19:54.781 19415 19548 I SoftRide: cue focus result=1 +1ms
+10-21 21:19:54.797 19415 19548 I SoftRide: cue: 곧 왼쪽 via pleos
+10-21 21:20:08.753 19415 19443 I SoftRide: cue focus result=1 +7ms
+10-21 21:20:08.769 19415 19443 I SoftRide: cue: 바깥 공기로 바꿀게요 via pleos
+10-21 21:20:10.973 19415 19415 I SoftRide: air care: [FRESH, TEMP, FAN] rec=[ROW_1_LEFT, ROW_1_RIGHT, ROW_2_LEFT, ROW_2_CENTER, ROW_2_RIGHT] true temp=[ROW_1_LEFT] 22.0 fan=[ROW_1_LEFT, ROW_1_RIGHT] 6
+10-21 21:20:30.768 19415 19548 I SoftRide: cue focus result=1 +5ms
+10-21 21:20:30.769 19415 19548 I SoftRide: cue: 1킬로미터 앞 휴게소에서 쉬었다 갈까요? via pleos
+10-21 21:20:39.495 19415 19415 I SoftRide: stt: no answer
+10-21 21:20:45.823 19415 19548 I SoftRide: cue focus result=1 +2ms
+10-21 21:20:45.841 19415 19548 I SoftRide: cue: 창밖 먼 곳을 봐요 via pleos
+10-21 21:21:23.905 19415 19548 I SoftRide: trip end: 150 s, avg 27, cues 3

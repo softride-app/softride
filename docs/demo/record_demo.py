@@ -116,7 +116,9 @@ sr = subprocess.Popen(ADB + ["shell", "screenrecord", "--time-limit", "180", "--
 sr_t = time.time()
 stamp(f"recorders started: gdigrab {vid_t:.3f}, screenrecord {sr_t:.3f}")
 
-time.sleep(5)
+time.sleep(4)
+shot("8x_00_idle_seat_empty.png")
+time.sleep(1)
 vc("/vehicle/seat?area=rear_right&kind=occupied&value=true")
 time.sleep(4)
 time.sleep(1)
@@ -127,23 +129,24 @@ driving = True
 threading.Thread(target=speed_loop, daemon=True).start()
 # short blink: the signal confirms the right-turn cue; a short blink keeps the side-camera view up only briefly
 at(19.5); vc("/vehicle/turn-signal?mode=BlinkRight")
-at(21.0); shot("6x_01_driving_cluster_D.png")
+at(21.0); shot("8x_01_driving_cluster_D.png")
 at(22.0); vc("/vehicle/turn-signal?mode=Off")
-at(25.5); shot("6x_02_after_right_cue.png")
+at(25.5); shot("8x_02_after_right_cue.png")
 at(74)
-for st in (20, -20, 25, -22, 20, 0):
+# steer left/right through the whole winding section (74-92 s) so sway builds up for the rest prompt
+for st in (20, -20, 25, -22, 20, -20, 22, -18, 0):
     control(steering=st, brake=0); time.sleep(2)
-control(brake=40); time.sleep(2); control(brake=0, steering=0)
-at(89); shot("6x_03_air_care_climate_bar.png")
-at(101); shot("6x_04_rest_prompt_listening.png")
+control(brake=0, steering=0)
+at(89); shot("8x_03_air_care_climate_bar.png")
+at(101); shot("8x_04_rest_prompt_listening.png")
 at(END - 0.5)
 driving = False
 time.sleep(0.6)
 vc("/vehicle/controls?speed=0&brake=0&steering=0")
 vc("/vehicle/gear?gear=Park")
-at(156); shot("6x_05_trip_report_parked.png")
+at(156); shot("8x_05_trip_report_parked.png")
 at(160); adb("shell", "cmd", "uimode", "night", "yes")
-at(165); shot("6x_06_trip_report_night.png")
+at(165); shot("8x_06_trip_report_night.png")
 at(166); adb("shell", "cmd", "uimode", "night", "no")
 stamp("end of scripted run")
 

@@ -59,6 +59,7 @@ class Speaker(context: Context) {
                         runCatching { tts.setLocale(Locale.KOREA); tts.setAudioAttributes(attrs) }
                         pleosReady = true; engine = "pleos"
                         Log.i(TAG, "Pleos TTS ready")
+                        applyVoice()
                         warmUp()
                     }
                     override fun onFailure(type: ErrorType) { Log.w(TAG, "Pleos TTS init failed: $type"); startPlatform() }
@@ -83,12 +84,13 @@ class Speaker(context: Context) {
                     platform?.language = Locale.KOREA
                     platform?.setAudioAttributes(attrs)
                     platform?.setOnUtteranceProgressListener(object : android.speech.tts.UtteranceProgressListener() {
-                        override fun onStart(id: String?) {}
+                        override fun onStart(id: String?) { Log.i(TAG, "platform tts onStart +${since()}ms") }
                         override fun onDone(id: String?) { release(); finished() }
                         @Deprecated("") override fun onError(id: String?) { release() }
                     })
                     if (!pleosReady) engine = "platform"
-                }
+                    Log.i(TAG, "platform TTS ready: ${platform?.defaultEngine}")
+                } else Log.w(TAG, "platform TTS init failed: $st")
             }
         }
     }
@@ -129,10 +131,21 @@ class Speaker(context: Context) {
     @Volatile private var t0 = 0L
     private fun since() = android.os.SystemClock.elapsedRealtime() - t0
 
+    /** Set at trip start from the child's profile. */
+    @Volatile var voice = Voice.WARM
+        set(v) { field = v; applyVoice() }
+
+    private fun applyVoice() {
+        if (pleosReady) runCatching { pleos?.setSpeakerType(voice.speaker) }.onFailure { Log.w(TAG, "speaker type: ${it.message}") }
+        Log.i(TAG, "voice ${voice.name} (${voice.speaker})")
+    }
+
     private fun say(text: String) {
         Log.i(TAG, "tts speak() +${since()}ms")
         if (pleosReady) runCatching { pleos?.speak(text, true); return }.onFailure { Log.w(TAG, "speak: ${it.message}") }
-        platform?.speak(text, android.speech.tts.TextToSpeech.QUEUE_FLUSH, null, "cue")
+        val v = voice
+        platform?.apply { setPitch(v.pitch); setSpeechRate(v.rate) }
+            ?.speak(text, android.speech.tts.TextToSpeech.QUEUE_FLUSH, null, "cue")
     }
 
     private fun playEarcon() {

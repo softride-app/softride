@@ -1,5 +1,6 @@
 package ai.softride.app.ui
 
+import ai.softride.app.engine.AirCare
 import ai.softride.app.engine.AirState
 import ai.softride.app.engine.RestState
 import ai.softride.app.engine.Screen
@@ -176,6 +177,11 @@ fun DriverScreen(ui: UiState, onStartDemo: () -> Unit, onSettings: () -> Unit) {
             if (driving && rest != null) {
                 BasicText(rest.first, style = sans(48, c.ink))
                 BasicText(rest.second, style = sans(36, if (ui.rest == RestState.LISTENING) c.told else c.ink2, FontWeight.Medium))
+            } else if (!driving && !ui.armed) {
+                // Parked with the profile's seat empty: say exactly what turns the alerts on
+                val name = ui.childName ?: "아이"
+                BasicText("뒷좌석 알림이 꺼져 있어요", style = sans(48, c.ink))
+                BasicText("$name${josa(name)} ${ui.childSeat.ifEmpty { "뒷좌석" }}에 앉으면 켜져요", style = sans(36, c.told))
             } else {
                 BasicText(
                     when { !driving -> "$child 탔어요"; ui.sway < 25 -> "$child 편안해요"; ui.sway < 50 -> "$child 조금 흔들려요"; else -> "$child 많이 흔들려요" },
@@ -214,11 +220,14 @@ private fun fitSize(text: String, widthPx: Int, maxPx: Int): Int {
 }
 
 private fun airText(ui: UiState): Pair<String, String> = when (ui.air) {
-    AirState.WAITING -> "공조 케어 대기 중" to "흔들리면 바깥 공기로 바꿔요"
-    AirState.ANNOUNCED -> "바깥 공기로 바꿔요" to "말씀드린 뒤에 바꿔요"
-    AirState.DONE -> "바깥 공기로 바꿨어요" to (ui.airArea + " " + ui.airApplied.joinToString(", ")).trim()
+    AirState.WAITING -> "공조 케어 대기 중" to "흔들리면 허락한 만큼 공조를 바꿔요"
+    AirState.ANNOUNCED -> ui.airLine.ifEmpty { "공조를 확인하고 있어요" } to "말씀드린 뒤에 바꿔요"
+    AirState.DONE -> (if ("바깥 공기" in ui.airApplied) "바깥 공기로 바꿨어요" else "공조를 조금 바꿨어요") to
+        (ui.airArea + " " + ui.airApplied.joinToString(", ")).trim()
+    AirState.FAILED -> "공조를 바꾸지 못했어요" to "차가 공조 요청을 받지 않았어요"
+    AirState.NOT_NEEDED -> "공조는 그대로 둘게요" to "허락한 범위에서 바꿀 것이 없어요"
+    AirState.ADVISED -> "공조 케어 안내만 했어요" to "“${AirCare.ADVICE}”"
     AirState.MANUAL -> "직접 바꾸신 대로 둘게요" to "이번 주행은 공조 케어를 쉬어요"
-    AirState.UNSUPPORTED -> "공조 케어를 쓸 수 없어요" to "이 차는 공조 요청을 받지 않아요"
 }
 
 /** Headline distance steps by 100 m (static between steps). */
