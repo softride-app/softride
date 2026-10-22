@@ -65,7 +65,7 @@ class AirCare(
             if (base != null && now.values() != base) { state = AirState.MANUAL; Log.i(TAG, "air care: manual change wins $base -> ${now.values()}"); return@survey }
             val acts = needed(now)
             if (acts.isEmpty()) { state = AirState.NOT_NEEDED; Log.i(TAG, "air care: nothing allowed is needed ${now.values()}"); return@survey }
-            val say = when { Act.FRESH in acts -> "바깥 공기로 바꿀게요"; Act.TEMP in acts -> "조금 시원하게 할게요"; else -> "바람을 조금 세게 할게요" }
+            val say = when { Act.FRESH in acts -> SAY_FRESH; Act.TEMP in acts -> SAY_TEMP; else -> SAY_FAN }
             if (!speak(say)) { state = AirState.WAITING; return@survey }   // no announcement, no action
             line = say
             main.postDelayed({ apply(now, acts) }, 2_200)
@@ -125,7 +125,12 @@ class AirCare(
         }.onFailure { Log.w(TAG, "air care: ${it.message}"); none() }
     }
 
-    companion object { const val ADVICE = "창문 쪽 공기를 바꾸면 편해져요" }
+    companion object {
+        const val ADVICE = "창문 쪽 공기를 바꾸면 편해져요"
+        const val SAY_FRESH = "바깥 공기로 바꿀게요"
+        const val SAY_TEMP = "조금 시원하게 할게요"
+        const val SAY_FAN = "바람을 조금 세게 할게요"
+    }
 
     private fun read(hvac: HVAC, rec: SeatArea?, temp: SeatArea?, fan: SeatArea?, out: (Boolean?, Float?, Int?) -> Unit) {
         fun fanStep(r: Boolean?, t: Float?) =

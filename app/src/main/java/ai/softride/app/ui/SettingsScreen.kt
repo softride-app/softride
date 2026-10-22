@@ -95,7 +95,7 @@ fun SettingsScreen(st: Settings, locked: Boolean, store: SettingsStore, onClose:
             Rule()
             SettingRow("멀미 민감도") { Sensitivity.entries.forEach { v -> Option(v.label, child.sensitivity == v, !locked) { edit { it.copy(sensitivity = v) } }; Gap() } }
             Rule()
-            SettingRow("알림 목소리") { Voice.entries.forEach { v -> Option(v.label, child.voice == v, !locked) { edit { it.copy(voice = v) } }; Gap() } }
+            SettingRow("말 빠르기") { Voice.entries.forEach { v -> Option(v.label, child.voice == v, !locked) { edit { it.copy(voice = v) } }; Gap() } }
             Rule()
         }
 

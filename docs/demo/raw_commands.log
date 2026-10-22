@@ -1,87 +1,87 @@
-21:18:38.668  T=   pre    VC PUT /vehicle/gear?gear=Park
-21:18:38.672  T=   pre    VC PUT /vehicle/seat?area=rear_left&kind=occupied&value=false
-21:18:38.677  T=   pre    VC PUT /vehicle/seat?area=rear_right&kind=occupied&value=false
-21:18:38.689  T=   pre    VC PUT /vehicle/controls?speed=0&brake=0&steering=0
-21:18:38.694  T=   pre    VC PUT /vehicle/turn-signal?mode=Off
-21:18:38.698  T=   pre    VC PUT /vehicle/hvac?power=1
-21:18:38.712  T=   pre    VC PUT /vehicle/hvac?recirc=1
-21:18:38.714  T=   pre    VC PUT /vehicle/hvac?driver_temp=22
-21:18:38.717  T=   pre    adb shell cmd uimode night no
-21:18:38.750  T=   pre    adb shell am force-stop ai.softride.app
-21:18:38.796  T=   pre    adb logcat -c
-21:18:38.827  T=   pre    adb shell am start -W -n ai.softride.app/.MainActivity
-21:18:42.362  T=   pre    recorders started: gdigrab 1792585122.357, screenrecord 1792585122.363
-21:18:46.738  T=   pre    screenshot 8x_00_idle_seat_empty.png
-21:18:47.738  T=   pre    VC PUT /vehicle/seat?area=rear_right&kind=occupied&value=true
-21:18:52.744  T=   0.00s  adb shell am start -n ai.softride.app/.MainActivity --ez replay true
-21:18:52.795  T=   0.05s  VC PUT /vehicle/gear?gear=Drive
-21:18:52.799  T=   0.06s  VC PUT /vehicle/controls?speed=2&brake=0&steering=0
-21:18:53.827  T=   1.08s  VC PUT /vehicle/controls?speed=7&brake=0&steering=0
-21:18:54.856  T=   2.11s  VC PUT /vehicle/controls?speed=13&brake=0&steering=0
-21:18:55.875  T=   3.13s  VC PUT /vehicle/controls?speed=18&brake=0&steering=0
-21:18:56.900  T=   4.16s  VC PUT /vehicle/controls?speed=24&brake=0&steering=0
-21:18:57.928  T=   5.18s  VC PUT /vehicle/controls?speed=29&brake=0&steering=0
-21:18:58.950  T=   6.21s  VC PUT /vehicle/controls?speed=35&brake=0&steering=0
-21:18:59.970  T=   7.23s  VC PUT /vehicle/controls?speed=40&brake=0&steering=0
-21:19:12.289  T=  19.54s  VC PUT /vehicle/turn-signal?mode=BlinkRight
-21:19:14.266  T=  21.52s  VC PUT /vehicle/controls?speed=34&brake=0&steering=0
-21:19:14.286  T=  21.54s  screenshot 8x_01_driving_cluster_D.png
-21:19:14.791  T=  22.05s  VC PUT /vehicle/turn-signal?mode=Off
-21:19:15.298  T=  22.55s  VC PUT /vehicle/controls?speed=28&brake=0&steering=0
-21:19:16.328  T=  23.58s  VC PUT /vehicle/controls?speed=22&brake=0&steering=0
-21:19:18.651  T=  25.91s  screenshot 8x_02_after_right_cue.png
-21:19:22.962  T=  30.22s  VC PUT /vehicle/controls?speed=28&brake=0&steering=0
-21:19:23.985  T=  31.24s  VC PUT /vehicle/controls?speed=33&brake=0&steering=0
-21:19:25.517  T=  32.77s  VC PUT /vehicle/controls?speed=40&brake=0&steering=0
-21:19:35.231  T=  42.49s  VC PUT /vehicle/controls?speed=34&brake=0&steering=0
-21:19:36.242  T=  43.50s  VC PUT /vehicle/controls?speed=26&brake=0&steering=0
-21:19:37.270  T=  44.53s  VC PUT /vehicle/controls?speed=18&brake=0&steering=0
-21:19:40.837  T=  48.09s  VC PUT /vehicle/controls?speed=24&brake=0&steering=0
-21:19:41.856  T=  49.11s  VC PUT /vehicle/controls?speed=30&brake=0&steering=0
-21:19:42.867  T=  50.12s  VC PUT /vehicle/controls?speed=36&brake=0&steering=0
-21:19:54.075  T=  61.33s  VC PUT /vehicle/controls?speed=30&brake=0&steering=0
-21:19:55.088  T=  62.34s  VC PUT /vehicle/controls?speed=24&brake=0&steering=0
-21:20:02.218  T=  69.47s  VC PUT /vehicle/controls?speed=30&brake=0&steering=0
-21:20:03.247  T=  70.50s  VC PUT /vehicle/controls?speed=35&brake=0&steering=0
-21:20:04.275  T=  71.53s  VC PUT /vehicle/controls?speed=41&brake=0&steering=0
-21:20:05.296  T=  72.55s  VC PUT /vehicle/controls?speed=46&brake=0&steering=0
-21:20:06.766  T=  74.02s  VC PUT /vehicle/controls?speed=47&brake=0&steering=20
-21:20:08.779  T=  76.03s  VC PUT /vehicle/controls?speed=47&brake=0&steering=-20
-21:20:10.783  T=  78.04s  VC PUT /vehicle/controls?speed=47&brake=0&steering=25
-21:20:12.797  T=  80.05s  VC PUT /vehicle/controls?speed=47&brake=0&steering=-22
-21:20:14.810  T=  82.07s  VC PUT /vehicle/controls?speed=47&brake=0&steering=20
-21:20:16.823  T=  84.08s  VC PUT /vehicle/controls?speed=47&brake=0&steering=-20
-21:20:18.838  T=  86.09s  VC PUT /vehicle/controls?speed=47&brake=0&steering=22
-21:20:20.843  T=  88.10s  VC PUT /vehicle/controls?speed=47&brake=0&steering=-18
-21:20:22.847  T=  90.10s  VC PUT /vehicle/controls?speed=47&brake=0&steering=0
-21:20:24.853  T=  92.11s  VC PUT /vehicle/controls?speed=47&brake=0&steering=0
-21:20:25.173  T=  92.43s  screenshot 8x_03_air_care_climate_bar.png
-21:20:33.888  T= 101.14s  VC PUT /vehicle/controls?speed=53&brake=0&steering=0
-21:20:34.130  T= 101.39s  screenshot 8x_04_rest_prompt_listening.png
-21:20:34.402  T= 101.66s  VC PUT /vehicle/controls?speed=62&brake=0&steering=0
-21:20:34.912  T= 102.17s  VC PUT /vehicle/controls?speed=71&brake=0&steering=0
-21:20:35.420  T= 102.68s  VC PUT /vehicle/controls?speed=79&brake=0&steering=0
-21:20:35.934  T= 103.19s  VC PUT /vehicle/controls?speed=88&brake=0&steering=0
-21:20:36.440  T= 103.70s  VC PUT /vehicle/controls?speed=96&brake=0&steering=0
-21:21:05.539  T= 132.79s  VC PUT /vehicle/controls?speed=88&brake=0&steering=0
-21:21:06.560  T= 133.82s  VC PUT /vehicle/controls?speed=80&brake=0&steering=0
-21:21:07.570  T= 134.83s  VC PUT /vehicle/controls?speed=71&brake=0&steering=0
-21:21:08.591  T= 135.85s  VC PUT /vehicle/controls?speed=63&brake=0&steering=0
-21:21:09.105  T= 136.36s  VC PUT /vehicle/controls?speed=58&brake=0&steering=0
-21:21:10.133  T= 137.39s  VC PUT /vehicle/controls?speed=50&brake=0&steering=0
-21:21:11.151  T= 138.41s  VC PUT /vehicle/controls?speed=41&brake=0&steering=0
-21:21:12.179  T= 139.43s  VC PUT /vehicle/controls?speed=33&brake=0&steering=0
-21:21:12.684  T= 139.94s  VC PUT /vehicle/controls?speed=28&brake=0&steering=0
-21:21:13.706  T= 140.96s  VC PUT /vehicle/controls?speed=21&brake=0&steering=0
-21:21:16.250  T= 143.51s  VC PUT /vehicle/controls?speed=16&brake=0&steering=0
-21:21:18.303  T= 145.56s  VC PUT /vehicle/controls?speed=11&brake=0&steering=0
-21:21:20.841  T= 148.10s  VC PUT /vehicle/controls?speed=6&brake=0&steering=0
-21:21:22.889  T= 150.14s  VC PUT /vehicle/controls?speed=1&brake=0&steering=0
-21:21:24.886  T= 152.14s  VC PUT /vehicle/controls?speed=0&brake=0&steering=0
-21:21:24.890  T= 152.15s  VC PUT /vehicle/gear?gear=Park
-21:21:29.180  T= 156.44s  screenshot 8x_05_trip_report_parked.png
-21:21:32.766  T= 160.02s  adb shell cmd uimode night yes
-21:21:38.114  T= 165.37s  screenshot 8x_06_trip_report_night.png
-21:21:38.769  T= 166.02s  adb shell cmd uimode night no
-21:21:38.906  T= 166.16s  end of scripted run
-21:21:44.647  T= 171.90s  audio saved, peak 0.0051; audio started 1792585122.370 (gdigrab -0.012s, screenrecord -0.007s after audio)
+09:09:40.859  T=   pre    VC PUT /vehicle/gear?gear=Park
+09:09:40.870  T=   pre    VC PUT /vehicle/seat?area=rear_left&kind=occupied&value=false
+09:09:40.873  T=   pre    VC PUT /vehicle/seat?area=rear_right&kind=occupied&value=false
+09:09:40.877  T=   pre    VC PUT /vehicle/controls?speed=0&brake=0&steering=0
+09:09:40.888  T=   pre    VC PUT /vehicle/turn-signal?mode=Off
+09:09:40.899  T=   pre    VC PUT /vehicle/hvac?power=1
+09:09:40.902  T=   pre    VC PUT /vehicle/hvac?recirc=1
+09:09:40.904  T=   pre    VC PUT /vehicle/hvac?driver_temp=22
+09:09:40.908  T=   pre    adb shell cmd uimode night no
+09:09:40.940  T=   pre    adb shell am force-stop ai.softride.app
+09:09:41.060  T=   pre    adb logcat -c
+09:09:41.092  T=   pre    adb shell am start -W -n ai.softride.app/.MainActivity
+09:09:44.513  T=   pre    recorders started: gdigrab 1792627784.507, screenrecord 1792627784.513
+09:09:48.908  T=   pre    screenshot 8x_00_idle_seat_empty.png
+09:09:49.908  T=   pre    VC PUT /vehicle/seat?area=rear_right&kind=occupied&value=true
+09:09:54.921  T=   0.00s  adb shell am start -n ai.softride.app/.MainActivity --ez replay true
+09:09:54.973  T=   0.05s  VC PUT /vehicle/gear?gear=Drive
+09:09:54.986  T=   0.07s  VC PUT /vehicle/controls?speed=2&brake=0&steering=0
+09:09:56.005  T=   1.08s  VC PUT /vehicle/controls?speed=7&brake=0&steering=0
+09:09:57.023  T=   2.10s  VC PUT /vehicle/controls?speed=13&brake=0&steering=0
+09:09:58.032  T=   3.11s  VC PUT /vehicle/controls?speed=18&brake=0&steering=0
+09:09:59.053  T=   4.13s  VC PUT /vehicle/controls?speed=24&brake=0&steering=0
+09:10:00.070  T=   5.15s  VC PUT /vehicle/controls?speed=29&brake=0&steering=0
+09:10:01.089  T=   6.17s  VC PUT /vehicle/controls?speed=35&brake=0&steering=0
+09:10:02.101  T=   7.18s  VC PUT /vehicle/controls?speed=40&brake=0&steering=0
+09:10:14.424  T=  19.50s  VC PUT /vehicle/turn-signal?mode=BlinkRight
+09:10:16.392  T=  21.47s  VC PUT /vehicle/controls?speed=34&brake=0&steering=0
+09:10:16.518  T=  21.60s  screenshot 8x_01_driving_cluster_D.png
+09:10:16.923  T=  22.00s  VC PUT /vehicle/turn-signal?mode=Off
+09:10:17.410  T=  22.49s  VC PUT /vehicle/controls?speed=28&brake=0&steering=0
+09:10:18.431  T=  23.51s  VC PUT /vehicle/controls?speed=23&brake=0&steering=0
+09:10:20.879  T=  25.96s  screenshot 8x_02_after_right_cue.png
+09:10:25.074  T=  30.15s  VC PUT /vehicle/controls?speed=28&brake=0&steering=0
+09:10:26.607  T=  31.69s  VC PUT /vehicle/controls?speed=35&brake=0&steering=0
+09:10:28.137  T=  33.22s  VC PUT /vehicle/controls?speed=40&brake=0&steering=0
+09:10:37.321  T=  42.40s  VC PUT /vehicle/controls?speed=35&brake=0&steering=0
+09:10:38.335  T=  43.41s  VC PUT /vehicle/controls?speed=27&brake=0&steering=0
+09:10:39.357  T=  44.44s  VC PUT /vehicle/controls?speed=19&brake=0&steering=0
+09:10:42.938  T=  48.02s  VC PUT /vehicle/controls?speed=24&brake=0&steering=0
+09:10:43.958  T=  49.04s  VC PUT /vehicle/controls?speed=30&brake=0&steering=0
+09:10:44.975  T=  50.05s  VC PUT /vehicle/controls?speed=36&brake=0&steering=0
+09:10:56.172  T=  61.25s  VC PUT /vehicle/controls?speed=31&brake=0&steering=0
+09:10:57.184  T=  62.26s  VC PUT /vehicle/controls?speed=25&brake=0&steering=0
+09:11:04.313  T=  69.39s  VC PUT /vehicle/controls?speed=30&brake=0&steering=0
+09:11:05.341  T=  70.42s  VC PUT /vehicle/controls?speed=35&brake=0&steering=0
+09:11:06.358  T=  71.44s  VC PUT /vehicle/controls?speed=40&brake=0&steering=0
+09:11:07.377  T=  72.46s  VC PUT /vehicle/controls?speed=45&brake=0&steering=0
+09:11:08.963  T=  74.04s  VC PUT /vehicle/controls?speed=47&brake=0&steering=20
+09:11:10.976  T=  76.06s  VC PUT /vehicle/controls?speed=47&brake=0&steering=-20
+09:11:12.988  T=  78.07s  VC PUT /vehicle/controls?speed=47&brake=0&steering=25
+09:11:14.994  T=  80.07s  VC PUT /vehicle/controls?speed=47&brake=0&steering=-22
+09:11:17.007  T=  82.09s  VC PUT /vehicle/controls?speed=47&brake=0&steering=20
+09:11:19.019  T=  84.10s  VC PUT /vehicle/controls?speed=47&brake=0&steering=-20
+09:11:21.024  T=  86.10s  VC PUT /vehicle/controls?speed=47&brake=0&steering=22
+09:11:23.036  T=  88.12s  VC PUT /vehicle/controls?speed=47&brake=0&steering=-18
+09:11:25.049  T=  90.13s  VC PUT /vehicle/controls?speed=47&brake=0&steering=0
+09:11:27.062  T=  92.14s  VC PUT /vehicle/controls?speed=47&brake=0&steering=0
+09:11:27.389  T=  92.47s  screenshot 8x_03_air_care_climate_bar.png
+09:11:35.972  T= 101.05s  VC PUT /vehicle/controls?speed=52&brake=0&steering=0
+09:11:36.309  T= 101.39s  screenshot 8x_04_rest_prompt_listening.png
+09:11:36.477  T= 101.56s  VC PUT /vehicle/controls?speed=60&brake=0&steering=0
+09:11:36.991  T= 102.07s  VC PUT /vehicle/controls?speed=69&brake=0&steering=0
+09:11:37.505  T= 102.58s  VC PUT /vehicle/controls?speed=78&brake=0&steering=0
+09:11:38.012  T= 103.09s  VC PUT /vehicle/controls?speed=86&brake=0&steering=0
+09:11:38.518  T= 103.60s  VC PUT /vehicle/controls?speed=95&brake=0&steering=0
+09:12:07.550  T= 132.63s  VC PUT /vehicle/controls?speed=90&brake=0&steering=0
+09:12:08.570  T= 133.65s  VC PUT /vehicle/controls?speed=81&brake=0&steering=0
+09:12:09.592  T= 134.67s  VC PUT /vehicle/controls?speed=73&brake=0&steering=0
+09:12:10.098  T= 135.18s  VC PUT /vehicle/controls?speed=68&brake=0&steering=0
+09:12:11.118  T= 136.20s  VC PUT /vehicle/controls?speed=60&brake=0&steering=0
+09:12:12.128  T= 137.21s  VC PUT /vehicle/controls?speed=51&brake=0&steering=0
+09:12:13.155  T= 138.23s  VC PUT /vehicle/controls?speed=43&brake=0&steering=0
+09:12:13.662  T= 138.74s  VC PUT /vehicle/controls?speed=38&brake=0&steering=0
+09:12:14.689  T= 139.77s  VC PUT /vehicle/controls?speed=30&brake=0&steering=0
+09:12:15.712  T= 140.79s  VC PUT /vehicle/controls?speed=22&brake=0&steering=0
+09:12:17.745  T= 142.82s  VC PUT /vehicle/controls?speed=17&brake=0&steering=0
+09:12:20.295  T= 145.37s  VC PUT /vehicle/controls?speed=12&brake=0&steering=0
+09:12:22.333  T= 147.41s  VC PUT /vehicle/controls?speed=7&brake=0&steering=0
+09:12:24.884  T= 149.96s  VC PUT /vehicle/controls?speed=2&brake=0&steering=0
+09:12:27.049  T= 152.13s  VC PUT /vehicle/controls?speed=0&brake=0&steering=0
+09:12:27.054  T= 152.13s  VC PUT /vehicle/gear?gear=Park
+09:12:31.357  T= 156.44s  screenshot 8x_05_trip_report_parked.png
+09:12:34.940  T= 160.02s  adb shell cmd uimode night yes
+09:12:40.261  T= 165.34s  screenshot 8x_06_trip_report_night.png
+09:12:40.967  T= 166.05s  adb shell cmd uimode night no
+09:12:41.060  T= 166.14s  end of scripted run
+09:12:46.767  T= 171.85s  audio saved, peak 0.0357; audio started 1792627784.513 (gdigrab -0.006s, screenrecord +0.000s after audio)

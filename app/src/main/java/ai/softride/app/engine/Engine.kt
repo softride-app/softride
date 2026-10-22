@@ -19,6 +19,20 @@ import kotlin.math.roundToInt
 
 enum class Screen { IDLE, DRIVING, REPORT }
 
+/** Spoken after the child answers yes to the rest prompt. */
+const val REST_YES = "좋아요, 휴게소에서 쉬어 가요"
+
+/**
+ * The rest prompt for a service area [distanceM] ahead: distance rounded to 100 m (at least 100 m),
+ * "N미터" below 1 km, otherwise km with one decimal and no ".0" ("1.5킬로미터", "3킬로미터").
+ * Every text this can return has a pre-generated clip (assets/voice/index.json).
+ */
+fun restPrompt(distanceM: Double): String {
+    val m100 = ((distanceM / 100).roundToInt() * 100).coerceAtLeast(100)
+    val ahead = if (m100 < 1_000) "${m100}미터" else "${"%.1f".format(java.util.Locale.ROOT, m100 / 1000.0).removeSuffix(".0")}킬로미터"
+    return "$ahead 앞 휴게소에서 쉬었다 갈까요?"
+}
+
 data class TripReport(
     val route: String, val durationS: Int, val samples: List<Float>,
     val mostFromS: Int, val mostToS: Int, val avg: Int, val score: Int,
@@ -63,7 +77,7 @@ class Engine(private val context: Context) {
     /** Every non-turn prompt goes through here so it counts for the 8-s gap between spoken prompts. */
     private fun prompt(text: String, withEarcon: Boolean = true, onDone: (() -> Unit)? = null): Boolean =
         speaker.cue(text, withEarcon, onDone).also { if (it) planner.markSpoken(System.currentTimeMillis()) }
-    private val listener = Listener(context) { rests++; prompt("좋아요, 휴게소에서 쉬어 가요", withEarcon = false) }
+    private val listener = Listener(context) { rests++; prompt(REST_YES, withEarcon = false) }
     val air = AirCare(
         { if (live.ready) live.vehicle else null },
         { context.checkSelfPermission(CONTROL_CLIMATE) == android.content.pm.PackageManager.PERMISSION_GRANTED },
@@ -90,6 +104,7 @@ class Engine(private val context: Context) {
 
     fun start() {
         if (thread != null) return
+        speaker.voice = settings.value.child?.voice ?: Voice.NORMAL   // clips of the chosen speed load before the trip
         live.start(); real.start(); speaker.start(); listener.start()
         thread = HandlerThread("softride-engine").also { it.start(); handler = Handler(it.looper) }
         handler.post(::tick)
@@ -152,9 +167,7 @@ class Engine(private val context: Context) {
             // Rest: only when the NEXT TBT is a service area / rest area and sway has piled up; asked once, answer by voice.
             val rest = s.events.firstOrNull { it.tbt && it.kind == EventKind.REST && it.distanceM < 3_000 }
             if (quiet() && set.restOn && !restAsked && rest != null && sway.index >= sens.restAt) {
-                val m100 = (rest.distanceM / 100).roundToInt() * 100
-                val ahead = if (m100 < 1_000) "${m100}미터" else "${"%.1f".format(rest.distanceM / 1000).removeSuffix(".0")}킬로미터"
-                if (prompt("$ahead 앞 휴게소에서 쉬었다 갈까요?", withEarcon = false) { listener.listen() }) {
+                if (prompt(restPrompt(rest.distanceM), withEarcon = false) { listener.listen() }) {
                     restAsked = true; listener.asked()   // 휴식 counts only a "yes"
                 }
             }
@@ -168,6 +181,8 @@ class Engine(private val context: Context) {
     }
 
     private fun publish(s: Snapshot) {
+        // A speed chosen in settings (parked) loads its clips now, not at trip start (decoding takes seconds).
+        if (!tripActive) settings.value.child?.voice?.let { if (speaker.voice != it) speaker.voice = it }
         val next = s.events.firstOrNull { it.tbt }
         _ui.value = UiState(
             screen = when { tripActive -> Screen.DRIVING; report != null -> Screen.REPORT; else -> Screen.IDLE },
@@ -193,7 +208,7 @@ class Engine(private val context: Context) {
         if (!s.simulated) route = s.destination?.let { "$it 가는 길" } ?: "이번 주행"
         air.newTrip(settings.value.air)
         gaze.newTrip()
-        speaker.voice = settings.value.child?.voice ?: Voice.WARM
+        speaker.voice = settings.value.child?.voice ?: Voice.NORMAL
         speaker.warmUp()
         Log.i(TAG, "trip start (simulated=${s.simulated}, speed via ${live.speedSource})")
     }

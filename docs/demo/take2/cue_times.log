@@ -1,0 +1,29 @@
+# replay start (T=0) at 09:32:52.149299; audio start 09:32:41.738340
+10-22 09:32:37.941 11024 11024 I SoftRide: stt ready
+10-22 09:32:38.072 11024 11037 I SoftRide: seat ROW_2_LEFT sdk current=true
+10-22 09:32:38.089 11024 11037 I SoftRide: seat ROW_2_RIGHT sdk=true
+10-22 09:32:38.090 11024 11037 I SoftRide: seat ROW_2_LEFT sdk=true
+10-22 09:32:38.092 11024 11152 I SoftRide: seat ROW_2_RIGHT sdk current=true
+10-22 09:32:38.097 11024 11152 I SoftRide: seat ROW_2_RIGHT sdk=true
+10-22 09:32:38.099 11024 11080 I SoftRide: seat ROW_2_LEFT sdk=true
+10-22 09:32:38.101 11024 11080 I SoftRide: seat ROW_2_RIGHT sdk=true
+10-22 09:32:46.075 11024 11629 I SoftRide: seat ROW_2_RIGHT sdk=false
+10-22 09:32:51.235 11024 11159 I SoftRide: trip start (simulated=true, speed via car)
+10-22 09:33:11.050 11024 11159 I SoftRide: cue for tbt-0 RIGHT '우회전' at 47m, 43.0km/h
+10-22 09:33:11.110 11024 11159 I SoftRide: cue focus result=1 +60ms
+10-22 09:33:11.211 11024 11159 I SoftRide: cue: 곧 오른쪽 via clip fast
+10-22 09:33:34.650 11024 11159 I SoftRide: cue for caution-0 BUMP '과속방지턱' at 12m, 30.0km/h
+10-22 09:33:34.657 11024 11159 I SoftRide: cue focus result=1 +7ms
+10-22 09:33:34.688 11024 11159 I SoftRide: cue: 곧 덜컹 via clip fast
+10-22 09:33:53.878 11024 11159 I SoftRide: cue for tbt-1 LEFT '좌회전' at 9m, 24.0km/h
+10-22 09:33:53.880 11024 11159 I SoftRide: cue focus result=1 +1ms
+10-22 09:33:53.921 11024 11159 I SoftRide: cue: 곧 왼쪽 via clip fast
+10-22 09:34:08.085 11024 11629 I SoftRide: cue focus result=1 +1ms
+10-22 09:34:08.118 11024 11629 I SoftRide: cue: 바깥 공기로 바꿀게요 via clip fast
+10-22 09:34:10.321 11024 11024 I SoftRide: air care: [FRESH, TEMP, FAN] rec=[ROW_1_LEFT, ROW_1_RIGHT, ROW_2_LEFT, ROW_2_CENTER, ROW_2_RIGHT] true temp=[ROW_1_LEFT] 22.0 fan=[ROW_1_LEFT, ROW_1_RIGHT] 3
+10-22 09:34:30.096 11024 11159 I SoftRide: cue focus result=1 +2ms
+10-22 09:34:30.134 11024 11159 I SoftRide: cue: 1킬로미터 앞 휴게소에서 쉬었다 갈까요? via clip fast
+10-22 09:34:38.636 11024 11024 I SoftRide: stt: no answer
+10-22 09:34:45.282 11024 11159 I SoftRide: cue focus result=1 +2ms
+10-22 09:34:45.301 11024 11159 I SoftRide: cue: 창밖 먼 곳을 봐요 via clip fast
+10-22 09:35:23.265 11024 11159 I SoftRide: trip end: 150 s, avg 27, cues 3

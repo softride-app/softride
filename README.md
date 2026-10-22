@@ -25,7 +25,7 @@ adb -s emulator-5580 shell am start -n ai.softride.app/.MainActivity --ez replay
 ```
 
 - 경로에 한글이 있으면 `-Pandroid.overridePathCheck=true`가 필요하다(`gradle.properties`에도 넣어 둠).
-- 단위 테스트(`testDebugUnitTest`)는 한글 경로에서 Gradle이 테스트 클래스를 못 찾는다(`ClassNotFoundException`). `subst S: <softride 경로>` 후 `S:\`에서 실행하면 통과한다(6개 테스트).
+- 단위 테스트(`testDebugUnitTest`)는 한글 경로에서 Gradle이 테스트 클래스를 못 찾는다(`ClassNotFoundException`). `subst S: <softride 경로>` 후 `S:\`에서 실행하면 통과한다(9개 테스트; `VoiceClipsTest`는 모든 안내 문장의 음성 클립 파일을 확인).
 - 릴리스 서명 키는 `keystore\`에 있고 git에 올리지 않는다(`keystore\README.txt`에 비밀번호).
 - 릴리스는 R8 축소(`isMinifyEnabled`·`isShrinkResources`)를 켠다. Pleos SDK·Gson은 AIDL/리플렉션을 쓰므로 `app/proguard-rules.pro`에서 통째로 보존한다. 릴리스 APK 39.8 MB → 21.2 MB.
 - 시작 시 권한 요청: `CAR_SPEED`, 알림, `RECORD_AUDIO`(휴식 제안 대답), `pleos.car.permission.FUSED_LOCATION`. `install -g`면 미리 허용된다.
@@ -82,7 +82,7 @@ curl.exe -X PUT "$V/vehicle/gear?gear=Drive"; curl.exe -X PUT "$V/vehicle/contro
 - `engine/SwayMeter.kt` — 흔들림 지수 0–100. 좌우 가속(속도×진행 방향 변화율, 또는 속도²×tan(조향각)/축거 중 큰 값) + 앞뒤 가속(속도 변화) + 브레이크, 좌우에 가중. 0.1–0.5 Hz 대역을 강조. 1초 표본의 최근 5분 이동 평균.
 - `engine/CuePlanner.kt` — 멀미 예보 시점: 도달 시간 = 남은 거리 ÷ 현재 속도, 1.5초 전 알림. 같은 방향 방향지시등은 이미 한 알림을 확인하고, 아직 안 한 알림은 회전까지 4초 이하·150 m 미만일 때만 앞당긴다. 말하는 안내(회전 알림, 창밖 안내, 공조 케어, 휴게소 제안)는 서로 8초 이상 떨어뜨린다: 회전 알림이 아닌 안내는 앞으로 8초 안에 회전 알림이 있으면 기다린다(`quiet`).
 - `engine/WindowGaze.kt` — 창밖 시선 안내: 최근 1분 안에 10초 흔들림이 50 이상이었고, 진행 방향이 15초 넘게 ±5° 안이고(곧은 길), 400 m 안에 회전 안내(TBT)가 없으면 "창밖 먼 곳을 봐요". 10분에 한 번까지, 뒷좌석이 비었거나 미리 알림을 끄면 하지 않는다.
-- `engine/Speaker.kt` — 0.3초 효과음 + 짧은 음성("곧 오른쪽", "곧 왼쪽", "곧 유턴", "곧 덜컹"). `AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK`, 포커스를 받지 못하면 건너뜀(깜빡이 소리는 막지 않음). 효과음 0.15초 지점에서 `speak()`를 불러 음성이 효과음 끝 0~0.1초 안에 이어진다. 부팅 뒤 첫 합성이 1~3초 늦어서, TTS 준비 직후와 주행 시작 때 빈 문장(" ")으로 미리 깨운다(소리 없음). 알림 목소리: Pleos TTS에는 높낮이·빠르기 설정이 없어 `setSpeakerType`으로 화자를 바꾼다 — 다정한 = seoyoon, 또렷한 = haeun, 차분한 = eunwoo(Pleos 음성 서비스에 들어 있는 한국어 화자). 에뮬레이터에서 "곧 오른쪽"을 재 보니 평균 음높이 192 / 258 / 128 Hz, 길이 0.75 / 0.61 / 0.73초로 셋이 확실히 다르다. Pleos TTS를 못 쓸 때만 Android TTS로 대신하고, 그때는 높낮이·빠르기(1.0/1.0, 1.15/1.15, 0.85/0.85)로 구분한다.
+- `engine/Speaker.kt` — 0.3초 효과음 + 짧은 음성("곧 오른쪽", "곧 왼쪽", "곧 유턴", "곧 덜컹"). `AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK`, 포커스를 받지 못하면 건너뜀(깜빡이 소리는 막지 않음). 효과음 0.15초 지점에서 `speak()`를 불러 음성이 효과음 끝 0~0.1초 안에 이어진다. 부팅 뒤 첫 합성이 1~3초 늦어서, TTS 준비 직후와 주행 시작 때 빈 문장(" ")으로 미리 깨운다(소리 없음). 알림 목소리(0.2.0~): 기기 TTS 대신 미리 만들어 둔 자연스러운 음성 클립을 재생한다. 목소리는 하나이고 말 빠르기만 세 가지다 — 보통 빠르기 / 조금 빠르게 / 천천히(`assets/voice/{normal,fast,slow}/NN.ogg`, Opus 24 kHz 모노, 앞 무음 제거). `assets/voice/index.json`이 앱이 말하는 문장 그대로를 파일 이름에 잇는다(방향 안내 4개, 창밖 안내, 공조 케어 4개, "좋아요, 휴게소에서 쉬어 가요", 휴게소 제안 100~900미터·1~3킬로미터 30개). 시작·주행 시작 때 현재 빠르기의 클립을 PCM으로 풀어 두고, 효과음 뒤에 클립을 이어 붙인 AudioTrack 하나로 끊김 없이 재생한다(효과음과 겹치지 않음). 클립이 끝나는 순간(재생 위치가 끝에 닿을 때)에 포커스를 놓고 `onDone`을 부른다. 클립이 없거나 아직 풀리지 않았으면 이전과 같이 Pleos TTS → Android TTS로 말한다(그때는 높낮이·빠르기 1.0/1.0, 1.15/1.15, 0.85/0.85). 예전 저장값(다정한/또렷한/차분한)은 보통/조금 빠르게/천천히로 읽는다. 새 문장을 앱에 넣으면 클립도 만들어 index.json에 넣어야 한다(`EngineLogicTest`가 모든 문장과 파일을 확인).
 - `engine/AirCare.kt` — 공조 케어(요청 모델): 허용 범위(바깥 공기, −1 ℃, 바람 +1단) 안에서, `checkHvac*Capabilities`가 돌려준 영역에만, 음성 안내 후 실행, 주행당 1회, 운전자가 먼저 바꾸면 하지 않음. 실제로 바뀌는 것만 말한다(내기순환이 이미 꺼져 있으면 "바깥 공기로 바꿀게요"라고 하지 않고, 바꿀 것이 없으면 아무 말도 하지 않음). 승인 모드: `CONTROL_CAR_CLIMATE` 권한이 없거나 쓸 수 있는 공조 영역이 없으면 `setHvac*`를 부르지 않고 "창문 쪽 공기를 바꾸면 편해져요"라고 말한 뒤 화면에 "공조 케어 안내만 했어요"를 띄운다. 리포트의 "공조 케어"는 `setHvac*` 성공 콜백이 하나라도 온 뒤에만 센다.
 - `engine/Engine.kt` — 10 Hz 루프, 운전자 화면 수치는 5초 단위 계단 갱신, 주행 기록·리포트, 휴게소 제안(누적 흔들림이 높고 휴게소/졸음쉼터 TBT가 3 km 안에 있으면 1회).
 - `engine/Listener.kt` — 휴식 제안 대답. Pleos SpeechToText(ON_DEVICE)를 제안 음성이 끝난 직후에만 `request()`, 6초 안에 "응/네/예/그래/좋아"면 음성으로 확인하고 리포트 "휴식"에 센다. 대답이 없거나 STT를 못 쓰면 아무것도 하지 않는다(주행 중 버튼 없음).
@@ -104,7 +104,7 @@ curl.exe -X PUT "$V/vehicle/gear?gear=Drive"; curl.exe -X PUT "$V/vehicle/contro
 | Vehicle – Seat | `getCurrentSeatOccupancy`, `registerSeatOccupancy` (`ROW_2_LEFT/RIGHT`) | 뒷좌석 착석 시 멀미 예보 자동 시작 |
 | Vehicle – HVAC | `checkHvacRecirculationCapabilities`, `checkHvacTemperatureCapabilities`, `checkHvacFanSpeedCapabilities`, `getHvacRecirculationState`, `getHvacTemperature`, `getHvacFanSpeed`, `setHvacRecirculation`, `setHvacTemperature`, `setHvacFanSpeed` | `AirCare` |
 | NaviHelper 3.0.5 | `initialize(onConnected, onFailed)`, `addListener`, `getTBTInfo`, `getDestinationInfo`, `onTBTInfo`, `onCautionPointInfo`, `onDestinationInfo`, `onRouteStarted`, `onNavigationStatus`, `requestRoute`(점검용) | `RealSignals` |
-| TextToSpeech 3.3.1 | `TextToSpeech(context, Mode.ON_DEVICE)`, `initialize`, `setLocale(KOREA)`, `setAudioAttributes`, `setSpeakerType`(알림 목소리), `speak`, `addEventListener` | `Speaker` (초기화 실패 시 Android 기본 TTS로 대체) |
+| TextToSpeech 3.3.1 | `TextToSpeech(context, Mode.ON_DEVICE)`, `initialize`, `setLocale(KOREA)`, `setAudioAttributes`, `speak`, `addEventListener` | `Speaker` (음성 클립이 없는 문장 대비용; 초기화 실패 시 Android 기본 TTS로 대체) |
 | SpeechToText 3.3.1 | `SpeechToText(context, Mode.ON_DEVICE)`, `initialize`, `setLocale(KOREA)`, `addListener`, `request`, `stop`, `release` | `Listener` |
 | FusedLocation 1.1.3 | `initialize`, `isSupported`, `registerFusedLocationCallback`, `unregisterFusedLocationCallback`, `release` | `LiveVehicle` 속도 대체·진행 방향 |
 | AAOS | `CarPropertyManager` `PERF_VEHICLE_SPEED` | `LiveVehicle` 속도 |
@@ -113,7 +113,7 @@ curl.exe -X PUT "$V/vehicle/gear?gear=Drive"; curl.exe -X PUT "$V/vehicle/contro
 
 최종 화면은 `docs/screens/8x_*.png`(8단계 시연 녹화)와 `5x_08~10`(탑승자 설정)이다. 아래 단계별 기록의 화면은 `docs/screens/archive/`로 옮겼다.
 
-- 운전자 화면, Replay 중 우회전 1.5초 전 "곧 오른쪽" 음성(Pleos TTS 온디바이스, 화자 seoyoon), Virtual Console 조향 25°·브레이크 60%로 흔들림 지수 8 → 32, 공조 케어 실행 후 하단 공조 바 운전석 22.0° → 21.0°, 내기순환 아이콘 해제, Virtual Console 상태 `recirc_on=false`, 풍량 3 → 4. 화면: `docs/screens/archive/0*.png`.
+- 운전자 화면, Replay 중 우회전 1.5초 전 "곧 오른쪽" 음성(0.1.0 기록: Pleos TTS 온디바이스, 화자 seoyoon. 0.2.0부터 음성 클립), Virtual Console 조향 25°·브레이크 60%로 흔들림 지수 8 → 32, 공조 케어 실행 후 하단 공조 바 운전석 22.0° → 21.0°, 내기순환 아이콘 해제, Virtual Console 상태 `recirc_on=false`, 풍량 3 → 4. 화면: `docs/screens/archive/0*.png`.
 - 주행 제한: 매니페스트에 `distractionOptimized=true`를 선언한 사이드로드 APK는 기어 D·30 km/h에서도 가려지지 않았다(`archive/07_drive_restriction_D_30kmh.png`).
 - 공조 영역: 내기순환은 1·2열 전체 영역, 온도는 `ROW_1_LEFT`, 풍량은 `ROW_1_LEFT+ROW_1_RIGHT`로 응답. 뒷좌석 단독 온도·풍량 영역은 에뮬레이터에 없다.
 
